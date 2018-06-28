@@ -7,21 +7,22 @@ import java.util.TimerTask;
 public class Bomb_c extends MapCell {
 	private final byte BreadytToFire = 1;
 	private final byte BFired = 0;
-	private int indexi;
-	private int indexj;
-	private int bombFlame;
+	public int indexi;
+	public int indexj;
+
+	public int bombFlame;
+	private MapCell[][] obs;
+	private Timer timer;
+	byte state;
 	private BomberMan[] player;
 	private BomberMap gameMap;
-	MapCell[][] obs;
-	Timer timer;
-	byte state;
 	private int secound;
 	private int ID;
 
 	public Bomb_c(int x, int y) {
 		this.xPos = x;
 		this.yPos = y;
-		crossPermition = true;
+		crossPermission = true;
 		probability = .125;
 		secound = 3;
 		img = Toolkit.getDefaultToolkit().getImage("pics/Bomb.jpg");
@@ -29,7 +30,7 @@ public class Bomb_c extends MapCell {
 
 	}
 
-	private void BombTimer_start(MapCell[][] obs1, BomberMan[] player, BomberMap P) {
+	 void BombTimer_start(MapCell[][] obs1, BomberMan[] player, BomberMap P) {
 		timer = new Timer();
 		timer.schedule(new RemindTask(), secound * 1000);
 		this.obs = obs1;
@@ -116,7 +117,7 @@ public class Bomb_c extends MapCell {
 		}
 	}
 
-	public void bombـexplosion(MapCell[][] obs, BomberMan[] player) {
+	 void bombـexplosion(MapCell[][] obs, BomberMan[] player) {
 
 		if (this.state == BreadytToFire) {
 			downFlameAction(bombFlame, obs, player);

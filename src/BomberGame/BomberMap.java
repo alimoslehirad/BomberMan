@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.util.Objects;
@@ -11,33 +13,30 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BomberMap extends JFrame implements KeyListener {
+	BomberMan[] player = new BomberMan[4];
+	GameController g;
+	private boolean closeFlag;
 	private int well_cnt;
 	private ObjectPool v = new ObjectPool();
-	BomberMan[] player = new BomberMan[4];
-	//    BomberMap bomberMap=new
-	GameController g;
 	private Timer timer, timer1;
-	private boolean initFlag = false;
-
+	private boolean initFlag;
 
 	public BomberMap(String title, int x, int y) {
 		Runnable r = new Client(this);
+		closeFlag = false;
+		initFlag = false;
 		Thread t = new Thread(r);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, x * 50, y * 50 + 30);
 		setVisible(true);
+		setTitle(title);
 		BomberMapMask_init(v.frameMask);
 		addKeyListener(this);
 		player[0] = new BomberMan("pics/player1.png", 0, 0);
 		player[1] = new BomberMan("pics/player2.png", 0, 13);
 		player[2] = new BomberMan("pics/player1.png", 13, 0);
 		player[3] = new BomberMan("pics/player1.png", 13, 13);
-		for (int i = 0; i < 4; i++) {
-			player[i].setPosition();
-		}
-
-
 		initFlag = true;
 		repaint();
 		timer = new Timer();
@@ -45,6 +44,21 @@ public class BomberMap extends JFrame implements KeyListener {
 		well_cnt = 0;
 		t.start();
 		g = new GameController();
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.out.println("close");
+				setCloseFlag();
+			}
+
+		});
+	}
+
+	private void setCloseFlag() {
+		closeFlag = true;
+	}
+
+	private boolean isCloseFlag() {
+		return closeFlag;
 	}
 
 	private void wellGenerator() {
@@ -77,9 +91,7 @@ public class BomberMap extends JFrame implements KeyListener {
 
 				if (line == null) v.bufferedReader.close();
 				strArray = Objects.requireNonNull(line).split(" ");
-//                System.out.println(i);
 				for (int j = 0; j < 14; j++) {
-//                    System.out.println("j= "+j);
 					mask[i][j] = Integer.parseInt(strArray[j]);
 					if (mask[i][j] == v.BoxID) {
 						v.obs[i][j] = new Box_c(j * 50, i * 50 + v.y0);
@@ -105,10 +117,7 @@ public class BomberMap extends JFrame implements KeyListener {
 				System.out.println(
 						"Error reading file '"
 								+ v.fileName + "'");
-				// Or we could just do this:
-				// ex.printStackTrace();
 			}
-
 		}
 
 	}
@@ -120,18 +129,10 @@ public class BomberMap extends JFrame implements KeyListener {
 			g.fillRect(0, 0, 700, 730);
 			for (int i = 0; i < 14; i++) {
 				for (int j = 0; j < 14; j++) {
-					//System.out.println("graphic part i= "+ i);
 					v.obs[i][j].draw(this, g2);
 				}
 
 			}
-//            for (int i = 0; i < 14; i++) {
-//                for(int j=0;j<14;j++) {
-//                    //System.out.println("graphic part i= "+ i);
-//                    v.obs2[i][j].draw(this, g2);
-//                }
-//
-//            }
 			for (int i = 0; i < 4; i++) {
 				if (player[i].isAlive())
 					player[i].draw(g2, this);
@@ -188,20 +189,16 @@ public class BomberMap extends JFrame implements KeyListener {
 		}
 
 		public void run() {
-			while (true) {
+			while (isCloseFlag()) {
 				try {
 					System.out.println("connecting...");
 					mSocket = new Socket(serverAddress, port);
-
 					System.out.println("connect to server ....  " + port);
-
 					BufferedReader input = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
 					String answer = input.readLine();
-					//JOptionPane.showMessageDialog(null, answer);
 					System.out.println(answer);
 					g.keyPressedAct(answer, v.obs, player, bomberMap);
 					repaint();
-					// System.exit(0);
 					input.close();
 				} catch (IOException e) {
 					System.out.println(e.getMessage());
@@ -209,9 +206,6 @@ public class BomberMap extends JFrame implements KeyListener {
 			}
 		}
 
-//	public static void main(String[] args) {
-//		new Client();
-//	}
 	}
 
 }

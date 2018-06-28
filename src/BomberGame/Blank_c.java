@@ -11,7 +11,7 @@ public class Blank_c extends MapCell {
 		this.yPos = y;
 		probability = .5;
 		ID = 0;
-		crossPermition = true;
+		crossPermission = true;
 		img = Toolkit.getDefaultToolkit().getImage("pics/blank.png");
 	}
 

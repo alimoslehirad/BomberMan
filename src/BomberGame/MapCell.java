@@ -4,17 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class MapCell extends JFrame {
-	public double probability;
+	double probability;
 	public Integer xPos;
 	public Integer yPos;
-	public int width = 50;
-	public int height = 50;
-	public boolean crossPermition;
-	public MapCell content;
-	public Image img;
+	 boolean crossPermission;
+	 MapCell content;
+	 Image img;
 
-	public boolean isCrossPermition() {
-		return crossPermition;
+	 boolean isCrossPermission() {
+		return crossPermission;
 	}
 
 	public abstract int getID();

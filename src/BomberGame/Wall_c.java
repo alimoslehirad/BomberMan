@@ -4,7 +4,7 @@ import java.awt.*;
 public class Wall_c extends MapCell {
     private int ID;
     public Wall_c(){
-        crossPermition=false;
+        crossPermission=false;
         ID=3;
         img=Toolkit.getDefaultToolkit().getImage("pics/wall.png");
     }

@@ -2,22 +2,10 @@ package BomberGame;
 
 import BomberInit.BomberKeyConfig;
 
-public class GameController {
-	public static final int UP = 0;
-	public static final int DOWN = 1;
-	public static final int LEFT = 2;
-	public static final int RIGHT = 3;
-	public static final int BOMB = 4;
-	public final int Blank = 0;
-	BomberKeyConfig keyConf = new BomberKeyConfig();
+ class GameController {
+	private  BomberKeyConfig keyConf = new BomberKeyConfig();
 
-
-	public GameController() {
-
-	}
-
-
-	public void findTask(String[][] key, String keyCode, int[] x) {
+	private void findTask(String[][] key, String keyCode, int[] x) {
 		boolean flag = false;
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -33,92 +21,91 @@ public class GameController {
 
 	}
 
-	public void keyPressedAct(String KeyCode, MapCell[][] obs, BomberMan[] player, BomberMap P) {
+	void keyPressedAct(String KeyCode, MapCell[][] obs, BomberMan[] player, BomberMap P) {
 		int[] x = new int[2];
 		findTask(keyConf.keys, KeyCode, x);
-		if (permitionToTask(x, obs, P)) {
+		if (permissionToTask(x, obs, P)) {
 
 			P.player[x[0]].react(x[1], obs, player, P);
 		}
 	}
 
-	public boolean permitionToTask(int[] x, MapCell[][] obs, BomberMap P) {
-		boolean permition = false;
+	private boolean permissionToTask(int[] x, MapCell[][] obs, BomberMap P) {
+		   int UP = 0;
+		   int DOWN = 1;
+		   int LEFT = 2;
+		   int RIGHT = 3;
+		   int BOMB = 4;
+		boolean permission = false;
 		if (x[1] == UP) {
-			permition = moveUp_permition(obs, P.player[x[0]]);
+			permission = moveUp_permission(obs, P.player[x[0]]);
 		} else if (x[1] == DOWN) {
-			permition = moveDown_permition(obs, P.player[x[0]]);
+			permission = moveDown_permission(obs, P.player[x[0]]);
 		} else if (x[1] == RIGHT) {
-			permition = moveRight_permition(obs, P.player[x[0]]);
+			permission = moveRight_permission(obs, P.player[x[0]]);
 		} else if (x[1] == LEFT) {
-			permition = moveLeft_permition(obs, P.player[x[0]]);
+			permission = moveLeft_permission(obs, P.player[x[0]]);
 		} else if (x[1] == BOMB) {
-			permition = bombing_permition(P.player[x[0]]);
+			permission = bombing_permission(P.player[x[0]]);
 
 		}
-		return permition;
+		return permission;
 
 	}
 
-	public boolean moveRight_permition(MapCell[][] d, BomberMan m) {
+	private boolean moveRight_permission(MapCell[][] d, BomberMan m) {
 
-		boolean permition = false;
+		boolean permission = false;
 		if (m.indexj != 13) {
-			if (d[m.indexi][m.indexj + 1].isCrossPermition()) {
-				permition = true;
-			} else {
-				permition = false;
+			if (d[m.indexi][m.indexj + 1].isCrossPermission()) {
+				permission = true;
+
 			}
 		}
-
-		return permition;
+		return permission;
 	}
 
-
-	boolean moveLeft_permition(MapCell[][] d, BomberMan m) {
-		boolean permition = false;
+	private boolean moveLeft_permission(MapCell[][] d, BomberMan m) {
+		boolean permission = false;
 		if (m.indexj != 0) {
-			if (d[m.indexi][m.indexj - 1].isCrossPermition()) {
-				permition = true;
-			} else {
-				permition = false;
+			if (d[m.indexi][m.indexj - 1].isCrossPermission()) {
+				permission = true;
 			}
 		}
 
-		return permition;
+		return permission;
 
 	}
 
-	boolean moveUp_permition(MapCell[][] d, BomberMan m) {
-		boolean permition = false;
+	private boolean moveUp_permission(MapCell[][] d, BomberMan m) {
+		boolean permission = false;
 		if (m.indexi != 0) {
-			if (d[m.indexi - 1][m.indexj].isCrossPermition()) {
-				permition = true;
-			} else {
-				permition = false;
+			if (d[m.indexi - 1][m.indexj].isCrossPermission()) {
+				permission = true;
 			}
 		}
 
-		return permition;
+		return permission;
 	}
 
-	boolean moveDown_permition(MapCell[][] d, BomberMan m) {
-		boolean permition = false;
+	private  boolean moveDown_permission(MapCell[][] d, BomberMan m) {
+		boolean permission = false;
 		if (m.indexi != 13) {
-			if (d[m.indexi + 1][m.indexj].isCrossPermition()) {
-				permition = true;
-			} else {
-				permition = false;
+			if (d[m.indexi + 1][m.indexj].isCrossPermission()) {
+				permission = true;
 			}
 		}
 
-		return permition;
+		return permission;
 	}
 
-	boolean bombing_permition(BomberMan m) {
-		boolean permition = true;
+	private boolean bombing_permission(BomberMan m) {
+		boolean permission = false;
+		if(m.concurrentBombing_num!=0){
+			permission=true;
+		}
 
 
-		return permition;
+		return permission;
 	}
 }

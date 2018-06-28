@@ -8,40 +8,19 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileOutputStream;
 
-public class BomberMapMake extends JFrame {
-	int x;
-	int y;
-	int indexi;
-	int indexj;
-	int k = 0;
-	String[] s;
-	Button_ex[][] button;
-	ActionListener actionListener = new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			// button[indexi][indexj].setIcon(new ImageIcon(s[k]));
-			for (int i = 0; i < 14; i++) {
-				for (int j = 0; j < 14; j++) {
-					if (e.getSource() == button[i][j]) {
-						button[i][j].state++;
+ class BomberMapMake extends JFrame {
+	private int x;
+	private int y;
 
-						if (button[i][j].state == 3) {
-							button[i][j].state = 0;
-						}
-						button[i][j].setIcon(new ImageIcon(s[button[i][j].state]));
-
-					}
-				}
-			}
-
-		}
-	};
+	private String[] s;
+	private Button_ex[][] button;
 
 	public BomberMapMake(String title, int x, int y) {
-
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(200, 200, x * 50, y * 50 + 30);
 		setVisible(true);
+		setTitle(title);
 		this.x = x;
 		this.y = y;
 
@@ -61,12 +40,29 @@ public class BomberMapMake extends JFrame {
 		button = new Button_ex[14][14];
 		for (int i = 0; i < x; i++) {
 			for (int j = 0; j < 14; j++) {
-				indexi = i;
-				indexj = j;
+
 				button[i][j] = new Button_ex("", new ImageIcon("pics/blank.png"));
 				button[i][j].indexi = i;
 				button[i][j].indexj = j;
 				button[i][j].setBounds(j * 50, i * 50, 50, 50);
+				ActionListener actionListener = new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						for (int i = 0; i < 14; i++) {
+							for (int j = 0; j < 14; j++) {
+								if (e.getSource() == button[i][j]) {
+									button[i][j].state++;
+
+									if (button[i][j].state == 3) {
+										button[i][j].state = 0;
+									}
+									button[i][j].setIcon(new ImageIcon(s[button[i][j].state]));
+
+								}
+							}
+						}
+
+					}
+				};
 				button[i][j].addActionListener(actionListener);
 				this.add(button[i][j]);
 			}
@@ -79,7 +75,6 @@ public class BomberMapMake extends JFrame {
 		try {
 			FileOutputStream fout = new FileOutputStream("BomberMap.txt");
 			String textStr = "";
-			byte b[] = textStr.getBytes();//converting string into byte array
 
 			for (int i = 0; i < 14; i++) {
 				for (int j = 0; j < 14; j++) {
@@ -100,7 +95,7 @@ public class BomberMapMake extends JFrame {
 
 			System.out.println("success...");
 		} catch (Exception e) {
-			System.out.println(e);
+			System.out.println(e.getMessage());
 		}
 
 
@@ -111,4 +106,13 @@ public class BomberMapMake extends JFrame {
 	}
 
 
+	@Override
+	public int getX() {
+		return x;
+	}
+
+	@Override
+	public int getY() {
+		return y;
+	}
 }
