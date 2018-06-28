@@ -1,5 +1,7 @@
 package BomberGame;
 
+import java.net.ServerSocket;
+import java.net.Socket;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -7,7 +9,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.net.Socket;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -22,10 +23,13 @@ public class BomberMap extends JFrame implements KeyListener {
 	private boolean initFlag;
 
 	public BomberMap(String title, int x, int y) {
-		Runnable r = new Client(this);
+		Runnable r1 = new ToClient1_lissening(this);
+		Runnable r2 = new ToClient2_lissening(this);
+
 		closeFlag = false;
 		initFlag = false;
-		Thread t = new Thread(r);
+		Thread t1 = new Thread(r1);
+		Thread t2 = new Thread(r2);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, x * 50, y * 50 + 30);
@@ -42,7 +46,8 @@ public class BomberMap extends JFrame implements KeyListener {
 		timer = new Timer();
 		timer.schedule(new RemindTask(), 160 * 1000);
 		well_cnt = 0;
-		t.start();
+		t1.start();
+		t2.start();
 		g = new GameController();
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -177,35 +182,89 @@ public class BomberMap extends JFrame implements KeyListener {
 
 	///==========================================================================
 	//=======================================================================
-	class Client implements Runnable {
+	class ToClient1_lissening implements Runnable {
 		Socket mSocket;
+		ServerSocket mServer;
 		BomberMap bomberMap;
-		int port = 10005;
-		String serverAddress = "192.168.1.111";
+		int port = 9091;
 
-		//    String serverAddress = "127.0.0.1";
-		public Client(BomberMap b) {
+//		String serverAddress = "192.168.1.111";
+
+		//		    String serverAddress = "127.0.0.1";
+		public ToClient1_lissening(BomberMap b) {
 			bomberMap = b;
 		}
-
 		public void run() {
-			while (isCloseFlag()) {
+			try {
+
+				// create server socket!
+				mServer = new ServerSocket(port);
+				System.out.println("Server Created! port:" + port);
+			}catch (IOException e){
+				System.out.println(e.getMessage());
+			}
+			while (!isCloseFlag()) {
 				try {
-					System.out.println("connecting...");
-					mSocket = new Socket(serverAddress, port);
-					System.out.println("connect to server ....  " + port);
-					BufferedReader input = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
+
+
+					// wait for client
+					Socket socket = mServer.accept();
+					System.out.println("Connected to	" + port);
+					BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					String answer = input.readLine();
 					System.out.println(answer);
 					g.keyPressedAct(answer, v.obs, player, bomberMap);
 					repaint();
 					input.close();
-				} catch (IOException e) {
-					System.out.println(e.getMessage());
+
+				}catch (IOException ex ){
+					ex.printStackTrace();
+					try{mServer.close();}catch(IOException e){}
 				}
+
 			}
 		}
 
 	}
+//=======================================================================================
+class ToClient2_lissening implements Runnable {
+
+	ServerSocket mServer;
+	BomberMap bomberMap;
+	int port = 9092;
+
+	public ToClient2_lissening(BomberMap b) {
+		bomberMap = b;
+	}
+	public void run() {
+		try {
+
+			// create server socket!
+			mServer = new ServerSocket(port);
+			System.out.println("Server Created! port:" + port);
+		}catch (IOException e){
+			System.out.println(e.getMessage());
+		}
+		while (!isCloseFlag()) {
+			try {
+				// wait for client
+				Socket socket = mServer.accept();
+				System.out.println("Connected to	" + port);
+				BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				String answer = input.readLine();
+				System.out.println(answer);
+				g.keyPressedAct(answer, v.obs, player, bomberMap);
+				repaint();
+				input.close();
+
+			}catch (IOException ex ){
+				ex.printStackTrace();
+				try{mServer.close();}catch(IOException e){}
+			}
+
+		}
+	}
+
+}
 
 }
