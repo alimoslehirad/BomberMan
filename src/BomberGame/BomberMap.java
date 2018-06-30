@@ -23,13 +23,13 @@ public class BomberMap extends JFrame implements KeyListener {
 	private boolean initFlag;
 
 	public BomberMap(String title, int x, int y) {
-		Runnable r1 = new ToClient1_lissening(this);
-		Runnable r2 = new ToClient2_lissening(this);
+		ToClient_lissening t1 = new ToClient_lissening(this,9091,0);
+		ToClient_lissening t2 = new ToClient_lissening(this,9092,1);
+		ToClient_lissening t3 = new ToClient_lissening(this,9093,2);
+		ToClient_lissening t4 = new ToClient_lissening(this,9094,3);
 
 		closeFlag = false;
 		initFlag = false;
-		Thread t1 = new Thread(r1);
-		Thread t2 = new Thread(r2);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, x * 50, y * 50 + 30);
@@ -48,6 +48,8 @@ public class BomberMap extends JFrame implements KeyListener {
 		well_cnt = 0;
 		t1.start();
 		t2.start();
+		t3.start();
+		t4.start();
 		g = new GameController();
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -148,7 +150,7 @@ public class BomberMap extends JFrame implements KeyListener {
 	}
 
 	public void keyPressed(KeyEvent e) {
-		g.keyPressedAct(Integer.toString(e.getKeyCode()), v.obs, player, this);
+		g.keyPressedAct(Integer.toString(e.getKeyCode()), v.obs, player, this,0);
 		repaint();
 	}
 
@@ -182,18 +184,18 @@ public class BomberMap extends JFrame implements KeyListener {
 
 	///==========================================================================
 	//=======================================================================
-	class ToClient1_lissening implements Runnable {
-		Socket mSocket;
+	class ToClient_lissening extends Thread {
 		ServerSocket mServer;
 		BomberMap bomberMap;
-		int port = 9091;
+		int port;
+		int clientId;
 
-//		String serverAddress = "192.168.1.111";
-
-		//		    String serverAddress = "127.0.0.1";
-		public ToClient1_lissening(BomberMap b) {
+		public ToClient_lissening(BomberMap b , int port,int clientId) {
 			bomberMap = b;
+			this.port=port;
+			this.clientId=clientId;
 		}
+
 		public void run() {
 			try {
 
@@ -213,7 +215,7 @@ public class BomberMap extends JFrame implements KeyListener {
 					BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					String answer = input.readLine();
 					System.out.println(answer);
-					g.keyPressedAct(answer, v.obs, player, bomberMap);
+					g.keyPressedAct(answer, v.obs, player, bomberMap,clientId);
 					repaint();
 					input.close();
 
@@ -226,45 +228,8 @@ public class BomberMap extends JFrame implements KeyListener {
 		}
 
 	}
-//=======================================================================================
-class ToClient2_lissening implements Runnable {
 
-	ServerSocket mServer;
-	BomberMap bomberMap;
-	int port = 9092;
 
-	public ToClient2_lissening(BomberMap b) {
-		bomberMap = b;
-	}
-	public void run() {
-		try {
 
-			// create server socket!
-			mServer = new ServerSocket(port);
-			System.out.println("Server Created! port:" + port);
-		}catch (IOException e){
-			System.out.println(e.getMessage());
-		}
-		while (!isCloseFlag()) {
-			try {
-				// wait for client
-				Socket socket = mServer.accept();
-				System.out.println("Connected to	" + port);
-				BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				String answer = input.readLine();
-				System.out.println(answer);
-				g.keyPressedAct(answer, v.obs, player, bomberMap);
-				repaint();
-				input.close();
-
-			}catch (IOException ex ){
-				ex.printStackTrace();
-				try{mServer.close();}catch(IOException e){}
-			}
-
-		}
-	}
-
-}
 
 }

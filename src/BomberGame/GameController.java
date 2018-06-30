@@ -2,51 +2,47 @@ package BomberGame;
 
 import BomberInit.BomberKeyConfig;
 
- class GameController {
-	private  BomberKeyConfig keyConf = new BomberKeyConfig();
+class GameController {
+	private BomberKeyConfig keyConf = new BomberKeyConfig();
 
-	private void findTask(String[][] key, String keyCode, int[] x) {
-		boolean flag = false;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 5; j++) {
-				if (key[i][j].equals(keyCode)) {
-					x[0] = i;
-					x[1] = j;
-					flag = true;
-					break;
-				}
-			}
-			if (flag) break;
+	private int findTask(String[][] key, String keyCode,  int clientId) {
+		int i;boolean flag =false;
+
+		for (i = 0; i < 5; i++) {
+			if (key[clientId][i].equals(keyCode)) { flag=true; break; }
 		}
-
+		if(flag) return i;
+		else  return -1;
 	}
 
-	void keyPressedAct(String KeyCode, MapCell[][] obs, BomberMan[] player, BomberMap P) {
+	void keyPressedAct(String KeyCode, MapCell[][] obs, BomberMan[] player, BomberMap P, int clientId) {
 		int[] x = new int[2];
-		findTask(keyConf.keys, KeyCode, x);
-		if (permissionToTask(x, obs, P)) {
+		int playerId=clientId;
+		int taskId=findTask(keyConf.keys, KeyCode, clientId);
 
-			P.player[x[0]].react(x[1], obs, player, P);
+		if (permissionToTask(taskId, obs, P,clientId)) {
+
+			P.player[playerId].react(taskId, obs, player, P);
 		}
 	}
 
-	private boolean permissionToTask(int[] x, MapCell[][] obs, BomberMap P) {
-		   int UP = 0;
-		   int DOWN = 1;
-		   int LEFT = 2;
-		   int RIGHT = 3;
-		   int BOMB = 4;
+	private boolean permissionToTask( int taskId,MapCell[][] obs, BomberMap P,int clientId) {
+		int UP = 0;
+		int DOWN = 1;
+		int LEFT = 2;
+		int RIGHT = 3;
+		int BOMB = 4;
 		boolean permission = false;
-		if (x[1] == UP) {
-			permission = moveUp_permission(obs, P.player[x[0]]);
-		} else if (x[1] == DOWN) {
-			permission = moveDown_permission(obs, P.player[x[0]]);
-		} else if (x[1] == RIGHT) {
-			permission = moveRight_permission(obs, P.player[x[0]]);
-		} else if (x[1] == LEFT) {
-			permission = moveLeft_permission(obs, P.player[x[0]]);
-		} else if (x[1] == BOMB) {
-			permission = bombing_permission(P.player[x[0]]);
+		if (taskId == UP) {
+			permission = moveUp_permission(obs, P.player[clientId]);
+		} else if (taskId == DOWN) {
+			permission = moveDown_permission(obs, P.player[clientId]);
+		} else if (taskId == RIGHT) {
+			permission = moveRight_permission(obs, P.player[clientId]);
+		} else if (taskId == LEFT) {
+			permission = moveLeft_permission(obs, P.player[clientId]);
+		} else if (taskId == BOMB) {
+			permission = bombing_permission(P.player[clientId]);
 
 		}
 		return permission;
@@ -88,7 +84,7 @@ import BomberInit.BomberKeyConfig;
 		return permission;
 	}
 
-	private  boolean moveDown_permission(MapCell[][] d, BomberMan m) {
+	private boolean moveDown_permission(MapCell[][] d, BomberMan m) {
 		boolean permission = false;
 		if (m.indexi != 13) {
 			if (d[m.indexi + 1][m.indexj].isCrossPermission()) {
@@ -101,8 +97,8 @@ import BomberInit.BomberKeyConfig;
 
 	private boolean bombing_permission(BomberMan m) {
 		boolean permission = false;
-		if(m.concurrentBombing_num!=0){
-			permission=true;
+		if (m.concurrentBombing_num != 0) {
+			permission = true;
 		}
 
 
