@@ -6,9 +6,9 @@ BomberMan is a open source project to every one new in java and oop programming.
 you can play run this project in 4 mode:
 
 * **Desktop in personal computer:** in this mode you can run game in a pc that 4 player can play togather in wireless or wired network.
-* **one desktop and mobile application as gaming controller :**in this mode Bomberman game run in a computer as server and four mobile application can connect to game program in client mode as gaming controller by wifi wireless network.
-* **online gaming in web platform:**in this mode we develop an online bomberman game that 4 player can play together in internet connection .
-* **mobile application:**One mobile application that 4 player can play together in wifi or internet network.
+* **one desktop and mobile application as gaming controller :** in this mode Bomberman game run in a computer as server and four mobile application can connect to game program in client mode as gaming controller by wifi wireless network.
+* **online gaming in web platform:** in this mode we develop an online bomberman game that 4 player can play together in internet connection .
+* **mobile application:** One mobile application that 4 player can play together in wifi or internet network.
 
 To get started, check out these links:
 
