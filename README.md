@@ -1,13 +1,14 @@
-# Litho [![CircleCI](https://circleci.com/gh/facebook/litho/tree/master.svg?style=svg)](https://circleci.com/gh/facebook/litho/tree/master) [![Join the chat at https://gitter.im/facebook/litho](https://badges.gitter.im/facebook/litho.svg)](https://gitter.im/facebook/litho?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# BomberMan [![CircleCI](https://circleci.com/gh/facebook/litho/tree/master.svg?style=svg)](https://circleci.com/gh/facebook/litho/tree/master) [![Join the chat at https://gitter.im/facebook/litho](https://badges.gitter.im/facebook/litho.svg)](https://gitter.im/facebook/litho?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <img src="docs/static/logo.png" width=150 align=right>
 
-Litho is a declarative framework for building efficient UIs on Android.
+BomberMan is a open source project to every one new in java and oop programming.
+you can play run this project in 4 mode:
 
-* **Declarative:** Litho uses a declarative API to define UI components. You simply describe the layout for your UI based on a set of immutable inputs and the framework takes care of the rest.
-* **Asynchronous layout:** Litho can measure and layout your UI ahead of time without blocking the UI thread.
-* **View flattening:** Litho uses [Yoga](https://facebook.github.io/yoga/) for layout and automatically reduces the number of ViewGroups that your UI contains.
-* **Fine-grained recycling:** Any component such as a text or image can be recycled and reused anywhere in the UI.
+* **Desktop in personal computer:** in this mode you can run game in a pc that 4 player can play togather in wireless or wired network.
+* **one desktop and mobile application as gaming controller :**in this mode Bomberman game run in a computer as server and four mobile application can connect to game program in client mode as gaming controller by wifi wireless network.
+* **online gaming in web platform:**in this mode we develop an online bomberman game that 4 player can play together in internet connection .
+* **mobile application:**One mobile application that 4 player can play together in wifi or internet network.
 
 To get started, check out these links:
 
