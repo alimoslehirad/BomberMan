@@ -1,5 +1,5 @@
 import BomberGame.BomberMap;
-
+import BomberInit.BomberMapMake;
 public class Main {
 	public static final int x = 14;
 	public static final int y = 14;

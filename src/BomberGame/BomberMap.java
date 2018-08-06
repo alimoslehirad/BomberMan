@@ -131,6 +131,7 @@ public class BomberMap extends JFrame implements KeyListener {
 
 	public void paint(Graphics g) {
 		if (initFlag) {
+			//BomberMapMask_init(v.frameMask);
 			Graphics2D g2 = (Graphics2D) g;
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, 700, 730);
@@ -138,7 +139,6 @@ public class BomberMap extends JFrame implements KeyListener {
 				for (int j = 0; j < 14; j++) {
 					v.obs[i][j].draw(this, g2);
 				}
-
 			}
 			for (int i = 0; i < 4; i++) {
 				if (player[i].isAlive())
@@ -146,7 +146,6 @@ public class BomberMap extends JFrame implements KeyListener {
 			}
 
 		}
-
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -228,8 +227,5 @@ public class BomberMap extends JFrame implements KeyListener {
 		}
 
 	}
-
-
-
 
 }

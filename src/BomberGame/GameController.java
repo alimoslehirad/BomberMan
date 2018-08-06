@@ -1,7 +1,7 @@
 package BomberGame;
-
+import java.io.*;
 import BomberInit.BomberKeyConfig;
-
+import java.io.FileOutputStream;
 class GameController {
 	private BomberKeyConfig keyConf = new BomberKeyConfig();
 
@@ -24,7 +24,50 @@ class GameController {
 
 			P.player[playerId].react(taskId, obs, player, P);
 		}
+		writePlayerPosToTextFile(P);
 	}
+
+	private void writePlayerPosToTextFile(BomberMap P) {
+		try {
+			FileOutputStream fout = new FileOutputStream("BomberManStat.txt");
+			String textStr = "";
+			StringBuffer sb = new StringBuffer("Hello");
+			textStr="";
+
+			for (int i = 0; i < 4; i++) {
+ 					textStr+="P"+Integer.toString(i)+":\n" + "Xpos=" + Integer.toString( P.player[i].xPos) +"\n";
+					textStr+= "Ypos=" + Integer.toString( P.player[i].yPos)+ " \n"+"indexi=" + Integer.toString( P.player[i].indexi) +" \n"+
+							"indexj=" + Integer.toString( P.player[i].indexj)  +" \n" + "end"+"\n";
+
+				}
+
+				byte c[] = textStr.getBytes();//converting string into byte array
+				fout.write(c);
+				fout.close();
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+/*		try{
+
+			FileOutputStream fs = new FileOutputStream("ali.ser");
+			ObjectOutputStream os=new ObjectOutputStream(fs);
+			os.writeObject(P.player[0]);
+			os.close();
+
+		}
+		catch (Exception ex){
+			ex.printStackTrace();
+
+		}*/
+
+		System.out.println("Player stat write success...");
+
+	}
+
+
+
+
 
 	private boolean permissionToTask( int taskId,MapCell[][] obs, BomberMap P,int clientId) {
 		int UP = 0;
@@ -103,5 +146,14 @@ class GameController {
 
 
 		return permission;
+	}
+	public void playersStat_update(BomberMan[] players){
+		for(int i=0;i<4;i++){
+
+		}
+
+	}
+	public void playerStatUpdate(BomberMan p){
+
 	}
 }

@@ -8,7 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileOutputStream;
 
- class BomberMapMake extends JFrame {
+ public class BomberMapMake extends JFrame {
 	private int x;
 	private int y;
 
