@@ -2,6 +2,8 @@ package BomberGame;
 import java.io.*;
 import BomberInit.BomberKeyConfig;
 import java.io.FileOutputStream;
+import java.net.Socket;
+
 class GameController {
 	private BomberKeyConfig keyConf = new BomberKeyConfig();
 
@@ -18,56 +20,18 @@ class GameController {
 	void keyPressedAct(String KeyCode, MapCell[][] obs, BomberMan[] player, BomberMap P, int clientId) {
 		int[] x = new int[2];
 		int playerId=clientId;
+		playersStat_update(P);
 		int taskId=findTask(keyConf.keys, KeyCode, clientId);
 
 		if (permissionToTask(taskId, obs, P,clientId)) {
 
 			P.player[playerId].react(taskId, obs, player, P);
 		}
-		writePlayerPosToTextFile(P);
-	}
 
-	private void writePlayerPosToTextFile(BomberMap P) {
-		try {
-			FileOutputStream fout = new FileOutputStream("BomberManStat.txt");
-			String textStr = "";
-			StringBuffer sb = new StringBuffer("Hello");
-			textStr="";
+		playerStatWrite2Server(P.player[0]);
 
-			for (int i = 0; i < 4; i++) {
- 					textStr+="P"+Integer.toString(i)+":\n" + "Xpos=" + Integer.toString( P.player[i].xPos) +"\n";
-					textStr+= "Ypos=" + Integer.toString( P.player[i].yPos)+ " \n"+"indexi=" + Integer.toString( P.player[i].indexi) +" \n"+
-							"indexj=" + Integer.toString( P.player[i].indexj)  +" \n" + "end"+"\n";
-
-				}
-
-				byte c[] = textStr.getBytes();//converting string into byte array
-				fout.write(c);
-				fout.close();
-
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-/*		try{
-
-			FileOutputStream fs = new FileOutputStream("ali.ser");
-			ObjectOutputStream os=new ObjectOutputStream(fs);
-			os.writeObject(P.player[0]);
-			os.close();
-
-		}
-		catch (Exception ex){
-			ex.printStackTrace();
-
-		}*/
-
-		System.out.println("Player stat write success...");
 
 	}
-
-
-
-
 
 	private boolean permissionToTask( int taskId,MapCell[][] obs, BomberMap P,int clientId) {
 		int UP = 0;
@@ -89,7 +53,6 @@ class GameController {
 
 		}
 		return permission;
-
 	}
 
 	private boolean moveRight_permission(MapCell[][] d, BomberMan m) {
@@ -143,17 +106,65 @@ class GameController {
 		if (m.concurrentBombing_num != 0) {
 			permission = true;
 		}
-
-
 		return permission;
 	}
-	public void playersStat_update(BomberMan[] players){
+	public boolean playersStat_update(BomberMap map){
 		for(int i=0;i<4;i++){
-
+			System.out.println("i==="+i);
+			playerStatUpdate(map.player[i]);
 		}
-
+		return true;
 	}
 	public void playerStatUpdate(BomberMan p){
+		try {
+			String serverAddress="127.0.0.1";
+			int serverPort=9090;
+			Socket socket = new Socket(serverAddress,serverPort);
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			out.println(p.name+" R End");
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			String input="";
+			while(input.equals("")) {
+				input = in.readLine();
+			}
+			System.out.println("end recieving");
+			System.out.println(input);
+			String[] strArray;
+			strArray=input.split(" ");
+			p.indexi=Integer.parseInt(strArray[1]);
+			p.indexj=Integer.parseInt(strArray[2]);
+			socket.close();
+			out.close();
+		} catch (IOException ex) {
+		}
 
+
+	}
+
+
+	public boolean  playerStatWrite2Server(BomberMan p){
+		try {
+		String serverAddress="127.0.0.1";
+		int serverPort=9090;
+		Socket socket = new Socket(serverAddress,serverPort);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+		out.println(p.name+" W "+p.indexi+" "+p.indexj +" End");
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			String input="";
+			while(input.equals("")) {
+				input = in.readLine();
+			}
+			System.out.println("write to database is done");
+			System.out.println(input);
+//			String[] strArray;
+//			strArray=input.split(" ");
+//			p.indexi=Integer.parseInt(strArray[1]);
+//			p.indexj=Integer.parseInt(strArray[2]);
+			socket.close();
+			out.close();
+		} catch (IOException ex) {
+		}
+		return true;
 	}
 }

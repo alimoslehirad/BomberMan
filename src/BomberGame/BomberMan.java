@@ -8,7 +8,7 @@ public class BomberMan extends MovingObject {
 	private Bomb_c b;
 	private ObjectPool v = new ObjectPool();
 	private Image img;
-
+	public String name;
 	public BomberMan(String s, int indexi, int indexj) {
 		width = 50;
 		height = 50;
@@ -33,7 +33,7 @@ public class BomberMan extends MovingObject {
 	}
 
 	private void getPoint(MapCell[][] obs, BomberMap P) {
-		if (obs[indexi][indexj].getID() == 10) {
+		if (obs[indexi][indexj].getID() == 9) {
 			bombingFlame = 2;
 		} else if (obs[indexi][indexj].getID() == 7) {
 			this.alive = false;
@@ -42,6 +42,7 @@ public class BomberMan extends MovingObject {
 		}
 
 		obs[indexi][indexj] = new Blank_c(obs[indexi][indexj].getxPos(), obs[indexi][indexj].getyPos());
+		P.sendMapChange2server(indexi,indexj,obs[indexi][indexj].getID());
 
 	}
 
@@ -73,6 +74,7 @@ public class BomberMan extends MovingObject {
 		b.state = v.BReadytToFire;
 		obs[indexi][indexj] = b;
 		b.BombTimer_start(obs, player, P);
+		P.sendMapChange2server(indexi,indexj,obs[indexi][indexj].getID());
 	}
 
 	public void draw(Graphics2D g, BomberMap P) {

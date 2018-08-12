@@ -20,7 +20,7 @@ public class BomberMap extends JFrame implements KeyListener {
 	private int well_cnt;
 	private ObjectPool v = new ObjectPool();
 	private Timer timer, timer1;
-	private boolean initFlag;
+	private boolean initFlag,initFlag2;
 
 	public BomberMap(String title, int x, int y) {
 		ToClient_lissening t1 = new ToClient_lissening(this,9091,0);
@@ -30,6 +30,7 @@ public class BomberMap extends JFrame implements KeyListener {
 
 		closeFlag = false;
 		initFlag = false;
+		initFlag2=true;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, x * 50, y * 50 + 30);
@@ -37,11 +38,10 @@ public class BomberMap extends JFrame implements KeyListener {
 		setTitle(title);
 		BomberMapMask_init(v.frameMask);
 		addKeyListener(this);
-		player[0] = new BomberMan("pics/player1.png", 0, 0);
-		player[1] = new BomberMan("pics/player2.png", 0, 13);
-		player[2] = new BomberMan("pics/player1.png", 13, 0);
-		player[3] = new BomberMan("pics/player1.png", 13, 13);
-		initFlag = true;
+		player[0] = new BomberMan("pics/player1.png", 0, 0);player[0].name="P0";
+		player[1] = new BomberMan("pics/player2.png", 0, 13);player[1].name="P1";
+		player[2] = new BomberMan("pics/player1.png", 13, 0);player[2].name="P2";
+		player[3] = new BomberMan("pics/player1.png", 13, 13);player[3].name="P3";
 		repaint();
 		timer = new Timer();
 		timer.schedule(new RemindTask(), 160 * 1000);
@@ -75,66 +75,50 @@ public class BomberMap extends JFrame implements KeyListener {
 		int indexj = (int) (Math.random() * 13);
 		v.obs[indexi][indexj] = new Well_c(v.obs[indexi][indexj].xPos, v.obs[indexi][indexj].yPos);
 		well_cnt++;
+		sendMapChange2server(indexi,indexj,v.obs[indexi][indexj].getID());
 		repaint();
 	}
 
 	private void BomberMapMask_init(int[][] mask) {
-		try {
-			v.fileName = "BomberMap.txt";
-			FileReader fileReader = new FileReader(v.fileName);
-			v.bufferedReader = new BufferedReader(fileReader);
-
-		} catch (FileNotFoundException ex) {
-			System.out.println(
-					"Unable to open file '" +
-							v.fileName + "'");
-		}
-
-
-		String[] strArray;
-		for (int i = 0; i < 14; i++) {
-			try {
-				String line = v.bufferedReader.readLine();
-
-				if (line == null) v.bufferedReader.close();
-				strArray = Objects.requireNonNull(line).split(" ");
-				for (int j = 0; j < 14; j++) {
-					mask[i][j] = Integer.parseInt(strArray[j]);
-					if (mask[i][j] == v.BoxID) {
-						v.obs[i][j] = new Box_c(j * 50, i * 50 + v.y0);
-
-					}
-					if (mask[i][j] == v.wallID) {
-						v.obs[i][j] = new Wall_c();
-						v.obs[i][j].setPos(j * 50, i * 50 + v.y0);
-					}
-					if (mask[i][j] == v.Blank) {
-						v.obs[i][j] = new Blank_c(j * 50, i * 50 + v.y0);
-
-
-					}
-
-				}
-
-			} catch (FileNotFoundException ex) {
-				System.out.println(
-						"Unable to open file '" +
-								v.fileName + "'");
-			} catch (IOException ex) {
-				System.out.println(
-						"Error reading file '"
-								+ v.fileName + "'");
-			}
-		}
+		v.obs = creatMapCell(bomberMapUpdating("initialize"));
 
 	}
+private MapCell[][] creatMapCell(int [][] mask){
+		MapCell[][] map =new MapCell[14][14];
+	for (int i = 0; i < 14; i++) {
+		for (int j = 0; j < 14; j++) {
+			if (mask[i][j] == v.BoxID) {
+				map[i][j] = new Box_c(j * 50, i * 50 + v.y0);
+			}
+			if (mask[i][j] == v.wallID) {
+				map[i][j] = new Wall_c();
+				map[i][j].setPos(j * 50, i * 50 + v.y0);
+			}
+			if (mask[i][j] == v.Blank) {
+				map[i][j] = new Blank_c(j * 50, i * 50 + v.y0);
+			}
+			if (mask[i][j] == v.BompID) {
+				map[i][j] = new Bomb_c(j * 50, i * 50 + v.y0);
+			}
+			if (mask[i][j] == v.WellID) {
+				map[i][j] = new Well_c(j * 50, i * 50 + v.y0);
+			}
+			if (mask[i][j] == v.flameID) {
+				map[i][j] = new Flame_c(j * 50, i * 50 + v.y0);
+			}
 
+
+		}
+	}
+
+	return  map;
+}
 	public void paint(Graphics g) {
-		if (initFlag) {
 			//BomberMapMask_init(v.frameMask);
 			Graphics2D g2 = (Graphics2D) g;
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, 700, 730);
+			v.obs = creatMapCell(bomberMapUpdating("inGame"));
 			for (int i = 0; i < 14; i++) {
 				for (int j = 0; j < 14; j++) {
 					v.obs[i][j].draw(this, g2);
@@ -144,9 +128,39 @@ public class BomberMap extends JFrame implements KeyListener {
 				if (player[i].isAlive())
 					player[i].draw(g2, this);
 			}
-
-		}
 	}
+public int[][] bomberMapUpdating(String mode){
+		int[][] map=new int[14][14];
+	try {
+		String serverAddress="127.0.0.1";
+		int serverPort=9090;
+		Socket socket = new Socket(serverAddress,serverPort);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("Map R "+mode+ " End");
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String input="";
+		while(input.equals("")) {
+			input = in.readLine();
+		}
+		System.out.println("end receiving");
+		System.out.println(input);
+		String[] strArray;
+		strArray=input.split(" ");
+		socket.close();
+		out.close();
+		int k=1;
+		for(int i=0;i<14;i++){
+			for(int j=0;j<14;j++){
+				map[i][j]=Integer.parseInt(strArray[k]);
+				k++;
+			}
+		}
+
+	} catch (IOException ex) {
+	}
+	return map;
+}
+
 
 	public void keyPressed(KeyEvent e) {
 		g.keyPressedAct(Integer.toString(e.getKeyCode()), v.obs, player, this,0);
@@ -157,10 +171,34 @@ public class BomberMap extends JFrame implements KeyListener {
 
 	}
 
+
 	@Override
 	public void keyTyped(KeyEvent keyEvent) {
 
 	}
+
+	public void sendMapChange2server(int indexi,int indexj,int CellID){
+		try {
+			String serverAddress="127.0.0.1";
+			int serverPort=9090;
+			Socket socket = new Socket(serverAddress,serverPort);
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			out.println("Map W "+ Integer.toString(indexi)+" "+Integer.toString(indexj)+" "+Integer.toString(CellID)+" " +"End");
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			String input="";
+			while(input.equals("")) {
+				input = in.readLine();
+			}
+			System.out.println("end Map writing");
+			System.out.println(input);
+			socket.close();
+			out.close();
+		} catch (IOException ex) {
+		}
+
+
+	}
+
 
 	class RemindTask extends TimerTask {
 		public void run() {
@@ -180,6 +218,11 @@ public class BomberMap extends JFrame implements KeyListener {
 			}
 		}
 	}
+
+	//=====================================================================
+
+
+
 
 	///==========================================================================
 	//=======================================================================
@@ -206,8 +249,6 @@ public class BomberMap extends JFrame implements KeyListener {
 			}
 			while (!isCloseFlag()) {
 				try {
-
-
 					// wait for client
 					Socket socket = mServer.accept();
 					System.out.println("Connected to	" + port);

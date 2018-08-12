@@ -1,7 +1,7 @@
 P0:
 Xpos=0
-Ypos=80 
-indexi=1 
+Ypos=30 
+indexi=0 
 indexj=0 
 end
 P1:
