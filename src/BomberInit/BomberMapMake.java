@@ -67,8 +67,6 @@ import java.io.FileOutputStream;
 				this.add(button[i][j]);
 			}
 		}
-
-
 	}
 
 	private void writeMapToTextFile() {

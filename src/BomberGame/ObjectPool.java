@@ -16,7 +16,7 @@ public class ObjectPool {
 
 	int y0;
 	MapCell[][] obs;
-
+	MapCell cell;
 	public ObjectPool() {
 		frameMask = new int[14][14];
 

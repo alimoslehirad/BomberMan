@@ -26,6 +26,7 @@ class GameController {
 		if (permissionToTask(taskId, obs, P,clientId)) {
 
 			P.player[playerId].react(taskId, obs, player, P);
+
 		}
 
 		playerStatWrite2Server(P.player[0]);

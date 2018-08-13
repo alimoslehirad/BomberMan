@@ -45,6 +45,7 @@ import javax.swing.JFrame;
                      if(strArray[1].equals("R")){
                          if(strArray[2].equals("initialize")) {
                              input = mapDataExtraction("Init");
+                             mapDataInit();
                          }
                          else{
                              input = mapDataExtraction("inGame");
@@ -172,7 +173,41 @@ import javax.swing.JFrame;
          return allSt;
      }
 
+     private void mapDataInit() {
+         String fileName = "";
+         BufferedReader bufferedReader;
+         String st = "";
+         String allSt = "";
+         try {
+             fileName = "BomberMapInit";
+             FileReader fileReader = new FileReader(fileName);
+             bufferedReader = new BufferedReader(fileReader);
+             while (st != null) {
+                 try {
+                     st = bufferedReader.readLine();
+                 } catch (Exception ex) {
+                     System.out.println(ex);
+                 }
+                 allSt += st+"\n";
 
+             }
+             try {
+                 FileOutputStream fout = new FileOutputStream("BomberMap.txt");
+                 byte c[] = allSt.getBytes();//converting string into byte array
+                 fout.write(c);
+             }catch (Exception e){
+                 System.out.println(e);
+             }
+
+
+         } catch (FileNotFoundException ex) {
+             System.out.println(
+                     "Unable to open file '" +
+                             fileName + "'");
+         }
+
+
+     }
 
      public static void main(String[] args) {
 

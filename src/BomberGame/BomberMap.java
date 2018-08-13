@@ -9,10 +9,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-
 public class BomberMap extends JFrame implements KeyListener {
 	BomberMan[] player = new BomberMan[4];
 	GameController g;
@@ -20,17 +18,14 @@ public class BomberMap extends JFrame implements KeyListener {
 	private int well_cnt;
 	private ObjectPool v = new ObjectPool();
 	private Timer timer, timer1;
-	private boolean initFlag,initFlag2;
+	private boolean initFlag;
 
 	public BomberMap(String title, int x, int y) {
 		ToClient_lissening t1 = new ToClient_lissening(this,9091,0);
 		ToClient_lissening t2 = new ToClient_lissening(this,9092,1);
 		ToClient_lissening t3 = new ToClient_lissening(this,9093,2);
 		ToClient_lissening t4 = new ToClient_lissening(this,9094,3);
-
 		closeFlag = false;
-		initFlag = false;
-		initFlag2=true;
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(400, 200, x * 50, y * 50 + 30);
@@ -42,9 +37,8 @@ public class BomberMap extends JFrame implements KeyListener {
 		player[1] = new BomberMan("pics/player2.png", 0, 13);player[1].name="P1";
 		player[2] = new BomberMan("pics/player1.png", 13, 0);player[2].name="P2";
 		player[3] = new BomberMan("pics/player1.png", 13, 13);player[3].name="P3";
-		repaint();
 		timer = new Timer();
-		timer.schedule(new RemindTask(), 160 * 1000);
+		timer.schedule(new RemindTask(),160 * 1000);
 		well_cnt = 0;
 		t1.start();
 		t2.start();
@@ -56,8 +50,8 @@ public class BomberMap extends JFrame implements KeyListener {
 				System.out.println("close");
 				setCloseFlag();
 			}
-
 		});
+		initFlag = true;
 	}
 
 	private void setCloseFlag() {
@@ -68,7 +62,7 @@ public class BomberMap extends JFrame implements KeyListener {
 		return closeFlag;
 	}
 
-	private void wellGenerator() {
+	private void wellGenerator(BomberMap map) {
 		timer1 = new Timer();
 		timer1.schedule(new RemindTask2(), 3 * 1000);
 		int indexi = (int) (Math.random() * 13);
@@ -76,12 +70,11 @@ public class BomberMap extends JFrame implements KeyListener {
 		v.obs[indexi][indexj] = new Well_c(v.obs[indexi][indexj].xPos, v.obs[indexi][indexj].yPos);
 		well_cnt++;
 		sendMapChange2server(indexi,indexj,v.obs[indexi][indexj].getID());
-		repaint();
+		map.mapCellUpdating(v.obs[indexi][indexj]);
 	}
 
 	private void BomberMapMask_init(int[][] mask) {
-		v.obs = creatMapCell(bomberMapUpdating("initialize"));
-
+		System.out.println("BomberInit function");
 	}
 private MapCell[][] creatMapCell(int [][] mask){
 		MapCell[][] map =new MapCell[14][14];
@@ -106,33 +99,39 @@ private MapCell[][] creatMapCell(int [][] mask){
 			if (mask[i][j] == v.flameID) {
 				map[i][j] = new Flame_c(j * 50, i * 50 + v.y0);
 			}
-
-
 		}
 	}
-
 	return  map;
 }
-	public void paint(Graphics g) {
-			//BomberMapMask_init(v.frameMask);
-			Graphics2D g2 = (Graphics2D) g;
-			g.setColor(Color.WHITE);
-			g.fillRect(0, 0, 700, 730);
-			v.obs = creatMapCell(bomberMapUpdating("inGame"));
-			for (int i = 0; i < 14; i++) {
-				for (int j = 0; j < 14; j++) {
-					v.obs[i][j].draw(this, g2);
-				}
+public void paint(Graphics g) {
+	Graphics2D g2 = (Graphics2D) g;
+//	v.obs = creatMapCell(bomberMapUpdating("inGame"));
+	if(initFlag) {
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, 700, 730);
+		v.obs = creatMapCell(bomberMapUpdating("initialize"));
+		for (int i = 0; i < 14; i++) {
+			for (int j = 0; j < 14; j++) {
+				v.obs[i][j].draw(this, g2);
 			}
-			for (int i = 0; i < 4; i++) {
-				if (player[i].isAlive())
-					player[i].draw(g2, this);
-			}
+		}
+		initFlag=false;
+	}
+	else {
+
+		v.cell.draw(this, g2);
+	}
+
+	for (int i = 0; i < 4; i++) {
+		if (player[i].isAlive())
+			player[i].draw(g2, this);
+	}
 	}
 public int[][] bomberMapUpdating(String mode){
 		int[][] map=new int[14][14];
 	try {
 		String serverAddress="127.0.0.1";
+//		String serverAddress="79.175.133.67";
 		int serverPort=9090;
 		Socket socket = new Socket(serverAddress,serverPort);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -161,13 +160,45 @@ public int[][] bomberMapUpdating(String mode){
 	return map;
 }
 
+public boolean sendPacket2Server(String packet,int port,String serverIP){
+	try {
+		Socket socket = new Socket(serverIP,serverPort);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println(packet);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String input="";
+		while(input.equals("")) {
+			input = in.readLine();
+		}
+		System.out.println("end receiving");
+		System.out.println(input);
+		String[] strArray;
+		strArray=input.split(" ");
+		socket.close();
+		out.close();
+		int k=1;
+		for(int i=0;i<14;i++){
+			for(int j=0;j<14;j++){
+				map[i][j]=Integer.parseInt(strArray[k]);
+				k++;
+			}
+		}
 
+	} catch (IOException ex) {
+	}
+
+}
 	public void keyPressed(KeyEvent e) {
 		g.keyPressedAct(Integer.toString(e.getKeyCode()), v.obs, player, this,0);
 		repaint();
 	}
 
 	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode()==KeyEvent.VK_S){
+			initFlag=true;
+			v.cell = new Blank_c(0 * 50, 1 * 50 + v.y0);
+			repaint();
+		}
 
 	}
 
@@ -180,6 +211,7 @@ public int[][] bomberMapUpdating(String mode){
 	public void sendMapChange2server(int indexi,int indexj,int CellID){
 		try {
 			String serverAddress="127.0.0.1";
+//			String serverAddress="79.175.133.67";
 			int serverPort=9090;
 			Socket socket = new Socket(serverAddress,serverPort);
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -198,12 +230,10 @@ public int[][] bomberMapUpdating(String mode){
 
 
 	}
-
-
 	class RemindTask extends TimerTask {
 		public void run() {
 			System.out.println("Game Time's up!");
-			wellGenerator();
+			wellGenerator(BomberMap.this);
 			timer.cancel(); //Terminate the timer thread
 		}
 	}
@@ -212,7 +242,7 @@ public int[][] bomberMapUpdating(String mode){
 		public void run() {
 			System.out.println("Well generator Time's up!");
 			if (well_cnt < 50) {
-				wellGenerator();
+				wellGenerator(BomberMap.this);
 			} else {
 				timer1.cancel(); //Terminate the timer thread
 			}
@@ -220,7 +250,10 @@ public int[][] bomberMapUpdating(String mode){
 	}
 
 	//=====================================================================
-
+	public void mapCellUpdating(MapCell cell){
+		v.cell=cell;
+		repaint();
+	}
 
 
 

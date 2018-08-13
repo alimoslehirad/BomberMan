@@ -16,7 +16,7 @@ public class Bomb_c extends MapCell {
 	byte state;
 	private BomberMan[] player;
 	private BomberMap gameMap;
-	private int secound;
+	private int second;
 	private int ID;
 
 	public Bomb_c(int x, int y) {
@@ -24,7 +24,7 @@ public class Bomb_c extends MapCell {
 		this.yPos = y;
 		crossPermission = true;
 		probability = .125;
-		secound = 3;
+		second = 3;
 		img = Toolkit.getDefaultToolkit().getImage("pics/Bomb.jpg");
 		ID = 5;
 
@@ -32,7 +32,7 @@ public class Bomb_c extends MapCell {
 
 	 void BombTimer_start(MapCell[][] obs1, BomberMan[] player, BomberMap P) {
 		timer = new Timer();
-		timer.schedule(new RemindTask(), secound * 1000);
+		timer.schedule(new RemindTask(), second * 1000);
 		this.obs = obs1;
 		this.gameMap = P;
 		this.player = player;
@@ -57,6 +57,7 @@ public class Bomb_c extends MapCell {
 				if (obs[indexi + k][indexj].getToFireAction()) {
 					obs[indexi + k][indexj] = obs[indexi + k][indexj].content;
 					map.sendMapChange2server(indexi+k,indexj,obs[indexi+k][indexj] .getID());
+					map.mapCellUpdating(obs[indexi+k][indexj]);
 				}
 				for (int i = 0; i < 4; i++) {
 					if ((player[i].indexi == (indexi + k)) && (player[i].indexj == indexj)) {
@@ -74,6 +75,7 @@ public class Bomb_c extends MapCell {
 				if (obs[indexi - k][indexj].getToFireAction()) {
 					obs[indexi - k][indexj] = obs[indexi - k][indexj].content;
 					map.sendMapChange2server(indexi-k,indexj,obs[indexi-k][indexj] .getID());
+					map.mapCellUpdating(obs[indexi-k][indexj ]);
 				}
 				for (int i = 0; i < 4; i++) {
 					if ((player[i].indexi == (indexi - k)) && (player[i].indexj == indexj)) {
@@ -91,6 +93,7 @@ public class Bomb_c extends MapCell {
 				if (obs[indexi][indexj + k].getToFireAction()) {
 					obs[indexi][indexj + k] = obs[indexi][indexj + k].content;
 					map.sendMapChange2server(indexi,indexj+k,obs[indexi][indexj + k] .getID());
+					map.mapCellUpdating(obs[indexi][indexj + k]);
 				}
 				for (int i = 0; i < 4; i++) {
 					if ((player[i].indexi == indexi) && (player[i].indexj == (indexj + k))) {
@@ -108,6 +111,7 @@ public class Bomb_c extends MapCell {
 				if (obs[indexi][indexj - k].getToFireAction()) {
 					obs[indexi][indexj - k] = obs[indexi][indexj - k].content;
 					map.sendMapChange2server(indexi,indexj-k,obs[indexi][indexj - k] .getID());
+					map.mapCellUpdating(obs[indexi][indexj - k]);
 				}
 				for (int i = 0; i < 4; i++) {
 					if ((player[i].indexi == indexi) && (player[i].indexj == (indexj - k))) {
@@ -122,16 +126,16 @@ public class Bomb_c extends MapCell {
 	 void bombـexplosion(MapCell[][] obs, BomberMan[] player , BomberMap map) {
 
 		if (this.state == BreadytToFire) {
+			obs[indexi][indexj] = new Blank_c(obs[indexi][indexj].xPos, obs[indexi][indexj].yPos);
+			map.sendMapChange2server(indexi,indexj,obs[indexi][indexj].getID());
+			map.mapCellUpdating(obs[indexi][indexj]);
 			downFlameAction(bombFlame, obs, player,map);
 			upFlameAction(bombFlame, obs, player,map);
 			rightFlameAction(bombFlame, obs, player,map);
 			leftFlameAction(bombFlame, obs, player,map);
 		}
-		obs[indexi][indexj] = new Blank_c(obs[indexi][indexj].xPos, obs[indexi][indexj].yPos);
+
 		state = BFired;
-		map.sendMapChange2server(indexi,indexj,obs[indexi][indexj].getID());
-
-
 
 	}
 
